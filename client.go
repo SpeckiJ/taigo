@@ -21,6 +21,7 @@ type Client struct {
 	APIURL             string       // set by system
 	APIversion         string       // default: "v1"
 	BaseURL            string       // i.e.: "http://taiga.test" | Same value as `api` in `taiga-front-dist/dist/conf.json`
+	MediaURL           string       // i.e.: "http://media.taiga.test" | Same value as `api` in `taiga-back/settings/config.py.prod.example `
 	Headers            *http.Header // mostly set by system
 	HTTPClient         *http.Client // set by user
 	Token              string       // set by system; can be set manually
@@ -46,6 +47,7 @@ type Client struct {
 	User      *UserService
 	Webhook   *WebhookService
 	Wiki      *WikiService
+	Exporter  *ExporterService
 }
 
 // MakeURL accepts an Endpoint URL and returns a compiled absolute URL
@@ -109,6 +111,7 @@ func (c *Client) Initialise() error {
 	c.User = &UserService{c, 0, "users"}
 	c.Webhook = &WebhookService{c, 0, "webhooks", "webhooklogs"}
 	c.Wiki = &WikiService{c, 0, "wiki"}
+	c.Exporter = &ExporterService{c, 0, "exporter"}
 
 	// Final steps
 	c.isInitialised = true
@@ -153,7 +156,7 @@ func (c *Client) AuthByToken(tokenType, token string) error {
 
 // DisablePagination controls the value of header `x-disable-pagination`.
 func (c *Client) DisablePagination(b bool) {
-	var decision string = strings.Title(strconv.FormatBool(b))
+	var decision = strings.Title(strconv.FormatBool(b))
 	m := map[string]string{
 		"x-disable-pagination": decision,
 	}
